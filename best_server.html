@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Best Server - SpeedTest</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: #09090b;
+        color: #fafafa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .bg-grid {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image:
+          linear-gradient(
+            to right,
+            rgba(128, 128, 128, 0.03) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(128, 128, 128, 0.03) 1px,
+            transparent 1px
+          );
+        background-size: 32px 32px;
+      }
+
+      .bg-glow {
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.15;
+        z-index: -1;
+      }
+
+      .bg-glow-1 {
+        top: -200px;
+        left: -200px;
+        background: #3b82f6;
+      }
+
+      .bg-glow-2 {
+        bottom: -200px;
+        right: -200px;
+        background: #8b5cf6;
+      }
+
+      .container {
+        max-width: 560px;
+        width: 100%;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #22c55e;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 20px;
+      }
+
+      .badge-dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(0.9);
+        }
+      }
+
+      .title {
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #71717a;
+        font-weight: 500;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
+        padding: 32px;
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+      }
+
+      .server-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .server-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+      }
+
+      .server-icon svg {
+        width: 28px;
+        height: 28px;
+        color: white;
+      }
+
+      .copy-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #a1a1aa;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fafafa;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .copy-btn.copied {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+      }
+
+      .copy-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .details-grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 14px;
+        transition: all 0.2s ease;
+      }
+
+      .detail-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateX(4px);
+      }
+
+      .detail-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .detail-icon svg {
+        width: 18px;
+        height: 18px;
+        color: #71717a;
+      }
+
+      .detail-icon.id svg {
+        color: #3b82f6;
+      }
+      .detail-icon.location svg {
+        color: #f97316;
+      }
+      .detail-icon.name svg {
+        color: #22c55e;
+      }
+      .detail-icon.country svg {
+        color: #8b5cf6;
+      }
+      .detail-icon.sponsor svg {
+        color: #ec4899;
+      }
+      .detail-icon.url svg {
+        color: #06b6d4;
+      }
+
+      .detail-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .detail-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #52525b;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 4px;
+      }
+
+      .detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fafafa;
+        word-break: break-all;
+      }
+
+      .detail-value.url {
+        color: #3b82f6;
+        text-decoration: none;
+      }
+
+      .detail-value.url:hover {
+        text-decoration: underline;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: #18181b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 14px 24px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .toast svg {
+        width: 18px;
+        height: 18px;
+        color: #22c55e;
+      }
+
+      @media (max-width: 640px) {
+        .title {
+          font-size: 28px;
+        }
+
+        .card {
+          padding: 24px;
+        }
+
+        .server-header {
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .copy-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="container">
+      <header class="header">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Optimal Connection
+        </div>
+        <h1 class="title">Best Server</h1>
+        <p class="subtitle">Automatically selected for lowest latency</p>
+      </header>
+
+      <div class="card">
+        <div class="server-header">
+          <div class="server-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+              <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+              <line x1="6" x2="6.01" y1="6" y2="6" />
+              <line x1="6" x2="6.01" y1="18" y2="18" />
+            </svg>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyDetails()">
+            <svg
+              id="copyIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+              <path
+                d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+              />
+            </svg>
+            <span id="copyText">Copy Details</span>
+          </button>
+        </div>
+
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-icon id">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">ID</div>
+              <div class="detail-value" id="serverId"></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon location">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Location</div>
+              <div class="detail-value" id="serverLocation"></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon name">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+                <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+                <line x1="6" x2="6.01" y1="6" y2="6" />
+                <line x1="6" x2="6.01" y1="18" y2="18" />
+              </svg>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">City</div>
+              <div class="detail-value" id="serverName"></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon country">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                <path d="M2 12h20" />
+              </svg>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Country</div>
+              <div class="detail-value" id="serverCountry"></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon sponsor">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 21h18" />
+                <path d="M9 8h1" />
+                <path d="M9 12h1" />
+                <path d="M9 16h1" />
+                <path d="M14 8h1" />
+                <path d="M14 12h1" />
+                <path d="M14 16h1" />
+                <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+              </svg>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Sponsor</div>
+              <div class="detail-value" id="serverSponsor"></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon url">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                />
+                <path
+                  d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                />
+              </svg>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">URL</div>
+              <a
+                href="#"
+                target="_blank"
+                class="detail-value url"
+                id="serverUrl"
+              ></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+      Copied to clipboard
+    </div>
+
+    <script>
+      // Fetch best servers from API and populate the page with the top result
+      let currentServer = null;
+
+      async function loadBestServer() {
+        try {
+          const res = await fetch("/api/speedtest/best_servers");
+          if (!res.ok) throw new Error("Failed to fetch best server");
+          const servers = await res.json();
+          if (!Array.isArray(servers) || servers.length === 0) {
+            document.getElementById("serverName").innerText = "No server found";
+            return;
+          }
+          // Pick the first server as the recommended/best
+          const s = servers[0];
+          currentServer = s;
+          // location may be "Name, Country" — keep as-is for display
+          document.getElementById("serverId").innerText = s.id || "";
+          document.getElementById("serverLocation").innerText =
+            s.location || "";
+          // try to extract name and country from fields if present
+          document.getElementById("serverName").innerText =
+            s.name || (s.location ? s.location.split(",")[0] : "");
+          document.getElementById("serverCountry").innerText =
+            s.country ||
+            (s.location ? s.location.split(",").slice(1).join(",").trim() : "");
+          document.getElementById("serverSponsor").innerText = s.sponsor || "";
+          const urlEl = document.getElementById("serverUrl");
+          urlEl.href = s.url || "#";
+          urlEl.innerText = s.url || "";
+        } catch (err) {
+          console.error(err);
+          document.getElementById("serverName").innerText =
+            "Error loading server";
+        }
+      }
+
+      function copyDetails() {
+        const s = currentServer || {
+          id: document.getElementById("serverId").innerText,
+          location: document.getElementById("serverLocation").innerText,
+          name: document.getElementById("serverName").innerText,
+          country: document.getElementById("serverCountry").innerText,
+          sponsor: document.getElementById("serverSponsor").innerText,
+          url: document.getElementById("serverUrl").innerText,
+        };
+        const details = `ID: ${s.id}\nLocation: ${s.location}\nName: ${s.name}\nCountry: ${s.country}\nSponsor: ${s.sponsor}\nURL: ${s.url}`;
+        navigator.clipboard.writeText(details).then(() => {
+          const btn = document.getElementById("copyBtn");
+          const icon = document.getElementById("copyIcon");
+          const text = document.getElementById("copyText");
+          const toast = document.getElementById("toast");
+
+          btn.classList.add("copied");
+          text.textContent = "Copied!";
+          icon.innerHTML = `<polyline points="20 6 9 17 4 12"/>`;
+
+          toast.classList.add("show");
+
+          setTimeout(() => {
+            btn.classList.remove("copied");
+            text.textContent = "Copy Details";
+            icon.innerHTML = `
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    `;
+            toast.classList.remove("show");
+          }, 2000);
+        });
+      }
+
+      // Load on page ready
+      window.addEventListener("DOMContentLoaded", loadBestServer);
+    </script>
+  </body>
+</html>

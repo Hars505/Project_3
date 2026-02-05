@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Available Servers</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0f1a 0%,
+          #1a1a2e 50%,
+          #0f0f1a 100%
+        );
+        min-height: 100vh;
+        color: #e4e4e7;
+        padding: 40px 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+      h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #60a5fa, #a78bfa, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+      }
+      .subtitle {
+        color: #71717a;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+      .server-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 8px 16px;
+        background: rgba(96, 165, 250, 0.1);
+        border: 1px solid rgba(96, 165, 250, 0.2);
+        border-radius: 100px;
+        font-size: 0.875rem;
+        color: #60a5fa;
+      }
+      .server-count .dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2);
+        }
+      }
+      .servers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 24px;
+      }
+      .server-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        padding: 28px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .server-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+      }
+      .server-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(96, 165, 250, 0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -20px rgba(96, 165, 250, 0.2);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+      .server-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fafafa;
+        margin-bottom: 4px;
+      }
+      .server-location {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #a1a1aa;
+        font-size: 0.875rem;
+      }
+      .server-location svg {
+        width: 14px;
+        height: 14px;
+        color: #60a5fa;
+      }
+      .copy-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        color: #71717a;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .copy-btn:hover {
+        background: rgba(96, 165, 250, 0.1);
+        border-color: rgba(96, 165, 250, 0.3);
+        color: #60a5fa;
+      }
+      .copy-btn.copied {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+      }
+      .copy-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+      .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .detail-item {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .detail-item.full-width {
+        grid-column: span 2;
+      }
+      .detail-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #52525b;
+        margin-bottom: 6px;
+      }
+      .detail-value {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #d4d4d8;
+        word-break: break-all;
+      }
+      .detail-value.id {
+        font-family: "SF Mono", "Fira Code", monospace;
+        color: #a78bfa;
+      }
+      .detail-value.url {
+        color: #60a5fa;
+        font-size: 0.8rem;
+      }
+      .country-flag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .flag-emoji {
+        font-size: 1.2rem;
+      }
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: #18181b;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        padding: 14px 24px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #22c55e;
+        font-weight: 500;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .toast svg {
+        width: 20px;
+        height: 20px;
+      }
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        .servers-grid {
+          grid-template-columns: 1fr;
+        }
+        .details-grid {
+          grid-template-columns: 1fr;
+        }
+        .detail-item.full-width {
+          grid-column: span 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Available Servers</h1>
+        <p class="subtitle">Select a server to run your speed test</p>
+        <div class="server-count">
+          <span class="dot"></span>
+          <span id="server-count-text">6 servers online</span>
+        </div>
+      </header>
+      <div class="servers-grid" id="servers-grid"></div>
+    </div>
+    <div class="toast" id="toast">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M5 13l4 4L19 7"
+        />
+      </svg>
+      <span>Server details copied!</span>
+    </div>
+    <script>
+      const FLAG_FALLBACK = {
+        "United States": "🇺🇸",
+        Germany: "🇩🇪",
+        Japan: "🇯🇵",
+      };
+      function countryCodeToFlag(code) {
+        if (!code) return "";
+        return String(code)
+          .toUpperCase()
+          .replace(/./g, (ch) =>
+            String.fromCodePoint(127397 + ch.charCodeAt(0)),
+          );
+      }
+      function getFlagForServer(s) {
+        if (s.countryCode) return countryCodeToFlag(s.countryCode);
+        const parts = (s.location || "")
+          .split(",")
+          .map((p) => p.trim())
+          .filter(Boolean);
+        const country = s.country || parts.slice(1).join(", ") || "";
+        return FLAG_FALLBACK[country] || "";
+      }
+      // Basic HTML-escape to avoid injection when inserting server strings
+      function escapeHtml(val) {
+        return String(val == null ? "" : val).replace(
+          /[&<>'"]/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[c],
+        );
+      }
+      // Simple SVG used next to location text
+      const LOCATION_SVG =
+        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>';
+      // Cache servers by id for quick access when copying
+      const serversCache = Object.create(null);
+      function serverCardHtml(s) {
+        const parts = (s.location || "")
+          .split(",")
+          .map((p) => p.trim())
+          .filter(Boolean);
+        const city = parts[0] || "";
+        const flag = getFlagForServer(s);
+        // store in cache
+        serversCache[String(s.id)] = s;
+        return `
+          <div class="server-card" data-server-id="${escapeHtml(s.id)}">
+            <div class="card-header">
+              <div>
+                <div class="server-name">${escapeHtml(s.name || s.sponsor || city || "Unknown")}</div>
+                <div class="server-location">${LOCATION_SVG}${escapeHtml(city || s.location || "")}</div>
+              </div>
+              <button class="copy-btn" data-copy-id="${escapeHtml(s.id)}" title="Copy server details">📋</button>
+            </div>
+            <div class="details-grid">
+              <div class="detail-item"><div class="detail-label">Server ID</div><div class="detail-value id">${escapeHtml(s.id)}</div></div>
+              <div class="detail-item"><div class="detail-label">Country</div><div class="detail-value"><span class="country-flag"><span class="flag-emoji">${escapeHtml(flag)}</span>${escapeHtml(s.country || "")}</span></div></div>
+              <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">${escapeHtml(city || s.location || "")}</div></div>
+              <div class="detail-item"><div class="detail-label">Sponsor</div><div class="detail-value">${escapeHtml(s.sponsor || "")}</div></div>
+              <div class="detail-item full-width"><div class="detail-label">URL</div><div class="detail-value url">${escapeHtml(s.url || "")}</div></div>
+            </div>
+          </div>`;
+      }
+      function showToast(msg = "Copied") {
+        const t = document.getElementById("toast");
+        t.querySelector("span").innerText = msg;
+        t.classList.add("show");
+        clearTimeout(window._toastTimeout);
+        window._toastTimeout = setTimeout(
+          () => t.classList.remove("show"),
+          1500,
+        );
+      }
+      async function renderServers() {
+        const grid = document.getElementById("servers-grid");
+        const countEl = document.getElementById("server-count-text");
+        grid.innerHTML = '<p style="padding:20px">Loading…</p>';
+        try {
+          const res = await fetch("/api/speedtest/servers");
+          if (!res.ok) throw new Error("Network error");
+          const list = await res.json();
+          if (!Array.isArray(list) || list.length === 0) {
+            countEl.innerText = "0 online";
+            grid.innerHTML =
+              '<p style="padding:20px">No servers available.</p>';
+            return;
+          }
+          countEl.innerText = `${list.length} online`;
+          grid.innerHTML = list.map(serverCardHtml).join("");
+          if (!grid._hasCopyHandler) {
+            grid.addEventListener("click", (ev) => {
+              const btn = ev.target.closest("[data-copy-id]");
+              if (!btn) return;
+              copyServerDetails(btn.getAttribute("data-copy-id"));
+            });
+            grid._hasCopyHandler = true;
+          }
+        } catch (err) {
+          countEl.innerText = "0 online";
+          grid.innerHTML = `<p style="padding:20px">Error loading servers</p>`;
+          console.error(err);
+        }
+      }
+      function copyServerDetails(id) {
+        const s = serversCache[String(id)];
+        if (!s) return showToast("No server");
+        const txt = `Server Details\nID: ${s.id}\nName: ${s.name || ""}\nLocation: ${s.location || ""}\nCountry: ${s.country || ""}\nSponsor: ${s.sponsor || ""}\nURL: ${s.url || ""}`;
+        navigator.clipboard
+          .writeText(txt)
+          .then(() => showToast("Copied"))
+          .catch(() => showToast("Copy failed"));
+      }
+      document.addEventListener("DOMContentLoaded", renderServers);
+    </script>
+  </body>
+</html>

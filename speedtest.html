@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpeedTest - Ultimate Diagnostics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: #09090b;
+        color: #fafafa;
+        overflow-x: hidden;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .speed-gauge {
+        position: relative;
+        width: 300px;
+        height: 300px;
+      }
+
+      .gauge-circle {
+        fill: none;
+        stroke-width: 12;
+        stroke-linecap: round;
+        transform: rotate(-225deg);
+        transform-origin: center;
+      }
+
+      .gauge-bg {
+        stroke: rgba(255, 255, 255, 0.05);
+      }
+
+      .gauge-progress {
+        stroke: #3b82f6;
+        stroke-dasharray: 565;
+        stroke-dashoffset: 565;
+        transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5));
+      }
+
+      .animate-pulse-slow {
+        animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .glow {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(59, 130, 246, 0.15) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .btn-start {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-start:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
+      }
+
+      .btn-start:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+
+      .btn-start:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(1);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-6">
+    <!-- Background Elements -->
+    <div class="fixed inset-0 z-[-1]">
+      <div
+        class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"
+      ></div>
+      <div
+        class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full"
+      ></div>
+      <div
+        class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"
+      ></div>
+    </div>
+
+    <div class="max-w-4xl w-full">
+      <!-- Header -->
+      <header class="text-center mb-16">
+        <h1
+          class="text-4xl md:text-5xl font-bold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400"
+        >
+          SpeedTest Pro
+        </h1>
+        <p class="text-zinc-500 text-lg">
+          Next-generation connection diagnostics
+        </p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Left Side: Stats -->
+        <div class="lg:col-span-4 space-y-6 order-2 lg:order-1">
+          <div
+            class="glass p-6 rounded-3xl group transition-all duration-300 hover:bg-white/[0.05]"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <div class="p-2 rounded-xl bg-blue-500/10 text-blue-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <span class="text-zinc-400 font-semibold">Ping</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="ping-value" class="text-3xl font-bold">--</span>
+              <span class="text-zinc-500 text-sm">ms</span>
+            </div>
+          </div>
+
+          <div
+            class="glass p-6 rounded-3xl group transition-all duration-300 hover:bg-white/[0.05]"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <div class="p-2 rounded-xl bg-green-500/10 text-green-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+              </div>
+              <span class="text-zinc-400 font-semibold">Download</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="download-value" class="text-3xl font-bold">--</span>
+              <span class="text-zinc-500 text-sm">Mbps</span>
+            </div>
+          </div>
+
+          <div
+            class="glass p-6 rounded-3xl group transition-all duration-300 hover:bg-white/[0.05]"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <div class="p-2 rounded-xl bg-purple-500/10 text-purple-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" x2="12" y1="3" y2="15"></line>
+                </svg>
+              </div>
+              <span class="text-zinc-400 font-semibold">Upload</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="upload-value" class="text-3xl font-bold">--</span>
+              <span class="text-zinc-500 text-sm">Mbps</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Gauge -->
+        <div
+          class="lg:col-span-8 flex flex-col items-center justify-center order-1 lg:order-2"
+        >
+          <div class="speed-gauge flex items-center justify-center">
+            <div class="glow"></div>
+            <svg viewBox="0 0 200 200" class="w-full h-full">
+              <circle
+                cx="100"
+                cy="100"
+                r="90"
+                class="gauge-circle gauge-bg"
+                stroke-dasharray="424"
+                stroke-dashoffset="0"
+              ></circle>
+              <circle
+                id="progress-circle"
+                cx="100"
+                cy="100"
+                r="90"
+                class="gauge-circle gauge-progress"
+                stroke-dasharray="424"
+                stroke-dashoffset="424"
+              ></circle>
+            </svg>
+
+            <div
+              class="absolute inset-0 flex flex-col items-center justify-center text-center"
+            >
+              <span
+                id="current-speed"
+                class="text-7xl font-bold tracking-tighter"
+                >0</span
+              >
+              <span
+                id="speed-unit"
+                class="text-zinc-500 font-medium uppercase tracking-widest text-sm mt-2"
+                >Mbps</span
+              >
+            </div>
+          </div>
+
+          <div class="mt-12 w-full max-w-xs">
+            <button
+              id="start-btn"
+              class="btn-start w-full py-5 rounded-2xl font-bold text-lg tracking-wide uppercase"
+            >
+              Start Test
+            </button>
+            <p
+              id="status-text"
+              class="text-center mt-4 text-zinc-500 text-sm font-medium h-5"
+            >
+              Ready to test
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const startBtn = document.getElementById("start-btn");
+      const progressCircle = document.getElementById("progress-circle");
+      const currentSpeedDisplay = document.getElementById("current-speed");
+      const statusText = document.getElementById("status-text");
+      const pingValue = document.getElementById("ping-value");
+      const downloadValue = document.getElementById("download-value");
+      const uploadValue = document.getElementById("upload-value");
+      const speedUnit = document.getElementById("speed-unit");
+
+      const MAX_DASH = 424;
+
+      function updateGauge(value, max = 100) {
+        const percentage = Math.min(value / max, 1);
+        const offset = MAX_DASH - percentage * MAX_DASH;
+        progressCircle.style.strokeDashoffset = offset;
+        currentSpeedDisplay.innerText = Math.round(value);
+      }
+
+      let animationFrame;
+      let animating = false;
+      let finalized = false; // when true, prevent any new animations from starting
+      let scheduledTimeouts = [];
+
+      function clearScheduledTimeouts() {
+        for (const id of scheduledTimeouts) {
+          clearTimeout(id);
+        }
+        scheduledTimeouts = [];
+      }
+      function animateGauge(min, max, unit) {
+        if (finalized) return; // never start animation after finalization
+        let direction = 1;
+        let value = min;
+        animating = true;
+        speedUnit.innerText = unit;
+        function step() {
+          if (!animating) return;
+          // protect against starting animation after finalize
+          if (finalized) {
+            animating = false;
+            return;
+          }
+          value += direction * (Math.random() * 5 + 2);
+          if (value > max) {
+            value = max;
+            direction = -1;
+          } else if (value < min) {
+            value = min;
+            direction = 1;
+          }
+          updateGauge(value, Math.max(100, max));
+          animationFrame = requestAnimationFrame(step);
+        }
+        step();
+      }
+      function stopGaugeAnimation() {
+        animating = false;
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+      }
+
+      startBtn.addEventListener("click", () => {
+        startBtn.disabled = true;
+        pingValue.innerText = "--";
+        downloadValue.innerText = "--";
+        uploadValue.innerText = "--";
+        updateGauge(0);
+        speedUnit.innerText = "Mbps";
+        let maxDownload = 100;
+        let maxUpload = 100;
+        let phase = "download";
+
+        const es = new EventSource("/api/speedtest/stream");
+        statusText.innerText = "Starting test...";
+
+        // Ensure any previous animation/timeouts are stopped before starting a new test
+        finalized = false;
+        stopGaugeAnimation();
+        clearScheduledTimeouts();
+        animateGauge(10, 90, "Mbps"); // Animate gauge while waiting for real data
+
+        es.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data.status) {
+              if (data.status === "starting") {
+                statusText.innerText = "Preparing test...";
+                phase = "download";
+                animateGauge(10, 90, "Mbps");
+              } else if (data.status === "selecting_best_server") {
+                statusText.innerText = "Selecting best server...";
+                phase = "download";
+                animateGauge(10, 90, "Mbps");
+              } else if (data.status === "running_download") {
+                statusText.innerText = "Testing download speed...";
+                phase = "download";
+                animateGauge(10, 90, "Mbps");
+              } else if (data.status === "downloading") {
+                if (phase === "download") {
+                  stopGaugeAnimation();
+                  updateGauge(data.value, Math.max(maxDownload, data.value));
+                  currentSpeedDisplay.innerText = data.value;
+                  speedUnit.innerText = "Mbps";
+                  animateGauge(
+                    Math.max(5, data.value - 10),
+                    data.value + 10,
+                    "Mbps",
+                  );
+                  maxDownload = Math.max(maxDownload, data.value);
+                }
+              } else if (data.status === "download_done") {
+                stopGaugeAnimation();
+                downloadValue.innerText = data.value;
+                updateGauge(data.value, Math.max(maxDownload, data.value));
+                statusText.innerText = "Download complete!";
+                speedUnit.innerText = "Mbps";
+                // Move to upload phase
+                phase = "upload";
+                const t1 = setTimeout(() => {
+                  if (!finalized) animateGauge(5, 60, "Mbps");
+                }, 300);
+                scheduledTimeouts.push(t1);
+              } else if (data.status === "running_upload") {
+                statusText.innerText = "Testing upload speed...";
+                phase = "upload";
+                animateGauge(5, 60, "Mbps");
+              } else if (data.status === "uploading") {
+                if (phase === "upload") {
+                  stopGaugeAnimation();
+                  updateGauge(data.value, Math.max(maxUpload, data.value));
+                  currentSpeedDisplay.innerText = data.value;
+                  speedUnit.innerText = "Mbps";
+                  animateGauge(
+                    Math.max(2, data.value - 8),
+                    data.value + 8,
+                    "Mbps",
+                  );
+                  maxUpload = Math.max(maxUpload, data.value);
+                }
+              } else if (data.status === "upload_done") {
+                stopGaugeAnimation();
+                uploadValue.innerText = data.value;
+                updateGauge(data.value, Math.max(maxUpload, data.value));
+                statusText.innerText = "Upload complete!";
+                speedUnit.innerText = "Mbps";
+                // Move to ping phase
+                phase = "ping";
+                const t2 = setTimeout(() => {
+                  if (!finalized) animateGauge(5, 30, "ms");
+                }, 300);
+                scheduledTimeouts.push(t2);
+              } else if (data.status === "ping") {
+                stopGaugeAnimation();
+                pingValue.innerText = data.value;
+                statusText.innerText = "Ping measured!";
+                speedUnit.innerText = "ms";
+                updateGauge(data.value, Math.max(30, data.value));
+                // Store the ping value for use in 'done'
+                window._lastPingValue = data.value;
+              } else if (data.status === "done") {
+                // Finalize: stop all animations/timeouts and lock meter at ping
+                finalized = true;
+                stopGaugeAnimation();
+                clearScheduledTimeouts();
+                statusText.innerText = "Test Complete";
+                downloadValue.innerText =
+                  data.download ?? downloadValue.innerText;
+                uploadValue.innerText = data.upload ?? uploadValue.innerText;
+                pingValue.innerText = data.ping ?? pingValue.innerText;
+                // Use last known ping (from 'ping' event) or data.ping
+                const finalPing =
+                  typeof window._lastPingValue !== "undefined"
+                    ? window._lastPingValue
+                    : data.ping || 0;
+                updateGauge(finalPing, Math.max(30, finalPing));
+                speedUnit.innerText = "ms";
+                // Remove stored ping value to avoid reuse
+                delete window._lastPingValue;
+                startBtn.disabled = false;
+                es.close();
+              } else if (data.status === "error") {
+                stopGaugeAnimation();
+                statusText.innerText = "Error: " + (data.message || "unknown");
+                startBtn.disabled = false;
+                es.close();
+              }
+            }
+          } catch (err) {
+            stopGaugeAnimation();
+            statusText.innerText = "Parse error";
+          }
+        };
+
+        es.onerror = (err) => {
+          stopGaugeAnimation();
+          statusText.innerText = "Connection error";
+          startBtn.disabled = false;
+          es.close();
+        };
+      });
+    </script>
+  </body>
+</html>

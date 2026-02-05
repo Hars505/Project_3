@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speed Test History</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Inter", sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      padding: 32px 20px;
+    }
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+      z-index: -1;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { color: #a1a1aa; font-weight: 500; }
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table thead th {
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #a1a1aa;
+      padding: 12px 12px;
+    }
+    .table tbody td {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 15px;
+      color: #e4e4e7;
+    }
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 48px 0;
+      color: #a1a1aa;
+    }
+    .empty-state span {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(59, 130, 246, 0.1);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    @media (max-width: 768px) {
+      .title { font-size: 28px; }
+      .table thead { display: none; }
+      .table tbody tr { display: grid; grid-template-columns: 1fr; padding: 12px 0; }
+      .table tbody td {
+        border: none;
+        padding: 6px 0;
+        font-size: 14px;
+      }
+      .table tbody td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #71717a;
+        margin-bottom: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="container">
+    <header class="header">
+      <div class="pill">History</div>
+      <h1 class="title">Internet Speed Test History</h1>
+      <p class="subtitle">All-time records of completed tests.</p>
+    </header>
+
+    <section class="card" id="history-card">
+      <table class="table" id="history-table" hidden>
+        <thead>
+          <tr>
+            <th>Server</th>
+            <th>Time</th>
+            <th>Download Speed</th>
+            <th>Upload Speed</th>
+            <th>Latency</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+
+      <div class="empty-state" id="empty-state">
+        <span>No speed tests have been done yet.</span>
+        <span>Run a test to start building your history.</span>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Placeholder: history array can be populated by your backend/local storage.
+    const history = [];
+
+    const table = document.getElementById("history-table");
+    const body = document.getElementById("history-body");
+    const empty = document.getElementById("empty-state");
+
+    if (history.length > 0) {
+      empty.hidden = true;
+      table.hidden = false;
+      history.forEach((item) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td data-label="Server">${item.server}</td>
+          <td data-label="Time">${item.time}</td>
+          <td data-label="Download">${item.download}</td>
+          <td data-label="Upload">${item.upload}</td>
+          <td data-label="Latency">${item.latency}</td>
+        `;
+        body.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
